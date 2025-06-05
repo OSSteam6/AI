@@ -2,30 +2,21 @@ import tkinter as tk
 import time
 import csv
 import random
+import pandas as pd
 
-# 연습 문장 목록
-sentences = [
-    "exceptional circumstances require immediate and thoughtful responses",
-    "typing speed improves dramatically with consistent and deliberate practice",
-    "grabbing a big box gently requires excellent motor control",
-    "the extravagant gift box glittered in the sunlight",
-    "backspace habit grows worse over time with inaccurate typing",
-    "sudden changes in weather patterns demand adaptive strategies",
-    "carefully chosen words can shift the tone of an entire conversation",
-    "a curious fox leapt over the quiet stream and disappeared",
-    "time management is the cornerstone of consistent productivity",
-    "she juggled tasks with graceful precision despite constant pressure",
-    "in the distance the lighthouse flickered through the thick fog",
-    "typing with rhythm improves accuracy and cognitive flow",
-    "beneath the surface tensions simmered like an unspoken truth",
-    "an unexpected delay changed the trajectory of the entire plan",
-    "moments of silence often speak louder than lengthy explanations"
-]
+# news_sentences.csv에서 랜덤으로 3개의 문장 선택
+news_df = pd.read_csv('data/news_sentences.csv')
+sentences = news_df.sample(n=3)['text'].tolist()  # 랜덤으로 3개의 문장 선택
+print(f"총 {len(sentences)}개의 문장을 불러왔습니다.")
+print("선택된 문장들:")
+for i, sentence in enumerate(sentences, 1):
+    print(f"{i}. {sentence[:100]}...")  # 각 문장의 처음 100자만 출력
 
 #초기 설정
 key_logs = []
-current_sentence = random.choice(sentences)
-sentence_id = sentences.index(current_sentence)
+current_sentence_index = 0  # 현재 문장 인덱스
+current_sentence = sentences[current_sentence_index]
+sentence_id = current_sentence_index
 last_press_time = None
 start_time = None
 
@@ -70,6 +61,8 @@ def on_key_release(event):
 
 #결과 저장
 def save_results():
+    global current_sentence_index, current_sentence, sentence_id, key_logs, start_time, last_press_time
+    
     final_rows = []
     hold_durations = []
     press_latencies = []
@@ -128,7 +121,7 @@ def save_results():
             "오답 여부": correctness
         })
     # 키 입력 결과 csv 저장
-    with open("typing_results.csv", "w", newline="", encoding="utf-8-sig") as f:
+    with open("data/typing_results.csv", "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=final_rows[0].keys())
         writer.writeheader()
         writer.writerows(final_rows)
@@ -142,15 +135,33 @@ def save_results():
         "avg_press_press_latency": avg_ppl,
         "error_count": error_count
     }]
-    with open("typing_summary.csv", "w", newline="", encoding="utf-8-sig") as f:
+    with open("data/typing_summary.csv", "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=summary_data[0].keys())
         writer.writeheader()
         writer.writerows(summary_data)
 
-    print("typing_results.csv 저장 완료")
-    print("typing_summary.csv 저장 완료")
+    print("data/typing_results.csv 저장 완료")
+    print("data/typing_summary.csv 저장 완료")
 
-    root.destroy()
+    # 다음 문장으로 넘어가기
+    current_sentence_index += 1
+    
+    if current_sentence_index < len(sentences):
+        # 다음 문장이 있으면 다음 문장으로
+        current_sentence = sentences[current_sentence_index]
+        sentence_id = current_sentence_index
+        key_logs = []
+        start_time = None
+        last_press_time = None
+        
+        # UI 업데이트
+        sentence_display.config(text=current_sentence)
+        entry.delete(0, tk.END)
+        entry.config(fg="black")
+        entry.focus_set()
+    else:
+        # 모든 문장을 완료했으면 프로그램 종료
+        root.destroy()
 
 # tkinter UI
 root = tk.Tk()
@@ -177,7 +188,6 @@ entry.pack(pady=10)
 entry.focus_set()
 entry.bind("<KeyPress>", on_key_press)
 entry.bind("<KeyRelease>", lambda event: [on_key_release(event), check_realtime_feedback(event)])
-
 
 done_button = tk.Button(root, text="입력 완료 및 저장", command=save_results)
 done_button.pack(pady=10)

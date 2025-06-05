@@ -1,6 +1,6 @@
 import tkinter as tk
 
-with open("generated_sentence.txt", "r", encoding="utf-8") as f:
+with open("data/generated_sentence.txt", "r", encoding="utf-8") as f:
     target_sentence = f.read().strip()
 
 root = tk.Tk()

@@ -78,13 +78,13 @@ def find_weak_keys(results_path, summary_path, top_n_sentence=3, top_n_keys=5):
 
 
 if __name__ == "__main__":
-    results_path = "typing_results.csv"
-    summary_path = "typing_summary.csv"
+    results_path = "data/typing_results.csv"
+    summary_path = "data/typing_summary.csv"
 
     weak_keys = find_weak_keys(results_path, summary_path)
 
     # 결과 CSV로 저장
-    output_path = "weak_keys.csv"
+    output_path = "data/weak_keys.csv"
     weak_keys.to_csv(output_path, index=False, encoding="utf-8-sig")
 
     print(f"취약키 분석 결과가 '{output_path}' 파일로 저장되었습니다.")
