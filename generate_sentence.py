@@ -10,7 +10,7 @@ load_dotenv()
 api = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api)
 
-print("API 키 값 : ", api)
+#print("API 키 값 : ", api)
 
 # 취약 키 top3 불러오기
 df = pd.read_csv("data/weak_keys.csv")
