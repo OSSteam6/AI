@@ -76,8 +76,7 @@ def find_weak_keys(results_path, summary_path, top_n_sentence=3, top_n_keys=5):
 
     return weak_keys[["입력값", "avg_khd", "avg_ppl", "error_rate", "distance", "softmax_score"]]
 
-
-if __name__ == "__main__":
+def analyze_typing_results():
     results_path = "data/typing_results.csv"
     summary_path = "data/typing_summary.csv"
 
